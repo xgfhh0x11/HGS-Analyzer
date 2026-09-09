@@ -1,0 +1,31 @@
+HGS-Analyzer / HgsManipulator.sys -- kd command reference
+=========================================================
+Run these in the kd session attached to the guest (kd -k net:port=<PORT>,key=<KEY>).
+Lines beginning with ">" are what you type at the kd prompt.
+
+--- initial attach / sanity ---
+> .reload                         ; reload symbols
+> vertarget                       ; confirm which guest you are on (DISPOSABLE only)
+> lm m HgsManipulator             ; is the driver loaded?
+
+--- enable Driver Verifier on the driver (do this, then reboot guest, before load) ---
+  (in the guest console, not kd:)  verifier /standard /driver HgsManipulator.sys
+  verify it took:
+> !verifier 3 HgsManipulator.sys
+
+--- after a bugcheck ---
+> !analyze -v                     ; primary triage: fault, stack, culprit
+> !process 0 0                    ; process list (did our client crash?)
+> !pool <addr>                    ; inspect a pool block (from !analyze output)
+> !poolused 2                     ; pool usage by tag, sorted
+> kb                              ; stack backtrace
+
+--- specifically verify the IOCTL buffer-size guards (the CRITICAL fix) ---
+  Send an undersized input/output buffer via smoke-test.ps1; the handler must
+  return STATUS_BUFFER_TOO_SMALL (0xC0000023), NOT read/write past the WDF
+  system buffer. With special pool on (verifier), an out-of-bounds access
+  bugchecks immediately with the faulting address -- confirm none occurs.
+
+--- resume / detach ---
+> g                               ; let the guest run
+> qd                              ; quit and detach (leaves guest running)
