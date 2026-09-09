@@ -34,7 +34,7 @@ exercise the parsers without modifying any real HGS endpoint.
 | Framework core | `src/hgs_framework.c` | top-level orchestration, lifecycle |
 | Attestation modeller | `src/hgs_attestation_fuzzer.c` | TPM / admin attestation request synthesis |
 | Key-protector modeller | `src/hgs_key_protector_model.c` | key-protector blob structure modelling |
-| RPC observer | `src/hgs_rpc_observer.c` | RPC flow capture (user-mode tracing) |
+| RPC observer | `src/hgs_rpc_observer.c` | RPC flow capture (**stub** — hooks log calls and forward to the original function; no packet is captured or queued yet) |
 | VM policy sampler | `src/hgs_vm_policy_sampler.c` | policy parameter test-set generation |
 | Utilities | `src/hgs_utils.c` | logging, error reporting |
 | Kernel driver | `src/hgs_kernel_driver.c` | KMDF entry point for kernel-side modelling |
@@ -107,11 +107,17 @@ python -m pytest tests/ -v
 |---|---|
 | `tests/test_tone_audit.py` | Scans `src/` + `include/` for the banned offensive-tone words (`attack`, `bypass`, `exploit`, `inject`, `hijack`) — turns the README's manual audit claim into a CI gate. |
 | `tests/test_structure.py` | Every file in the *Components* table exists; both headers + the vendored `getopt` shim are present; `build.bat` and `Makefile` share one user-mode source list and compile no kernel source. |
-| `tests/test_cli_smoke.py` | Runs the built `bin/hgs_manipulator.exe` (`--version`, `--help`, `--list-vms`) and checks exit codes + output. Skips cleanly if the binary has not been built; runs for real in CI after the build step. |
+| `tests/test_cli_smoke.py` | Runs the built `bin/hgs_manipulator.exe` (`--version`, `--help`, `--list-vms`) and checks exit codes + output. Skips cleanly if the binary has not been built. |
 
-CI (`.github/workflows/ci.yml`) builds the user-mode CLI with MSVC on
-`windows-latest`, runs the CLI smoke test, then runs the full `pytest`
-suite.
+`.github/workflows/ci.yml` is wired to build the user-mode CLI with
+MSVC on `windows-latest`, run the CLI smoke test, then run the full
+`pytest` suite — but the user-mode source as currently committed does
+**not** compile (see "Known limitations" below), so the build step
+fails and the CLI smoke test never actually executes in CI today; only
+the pure-Python `test_tone_audit.py` / `test_structure.py` rows are
+currently verified. Locally, `python -m pytest tests/ -v` reports 27
+passed / 3 skipped (the 3 skips are the CLI smoke rows, skipped
+because no binary was built).
 
 ## Threat model and scope
 
@@ -133,6 +139,53 @@ What it does:
 - record observed RPC sequences to disk for analysis,
 - produce structured reports useful to defenders performing HGS
   hardening reviews.
+
+## Known limitations
+
+Much of the operational logic is currently **stub / placeholder**, not
+a working implementation. This is consistent with the defensive
+framing (nothing here actually touches a real HGS endpoint or VM),
+but claims about what the code *does* should be read with these
+caveats:
+
+- **RPC observer is a no-op.** `ObserveThreadProc`
+  (`src/hgs_rpc_observer.c`) sleeps in a loop; the hooked RPC
+  functions log and forward to the original — no packet is captured,
+  parsed, or queued.
+- **VM policy / shielding functions do not modify anything.**
+  `ModifyVMShieldingPolicy`, `DisableVMShielding`,
+  `ModifyVMSecuritySettings`, `AnalysisVMSecurityChecks`, and
+  `ManipulateVMConfiguration` (`src/hgs_vm_policy_sampler.c`) log a
+  "modified successfully" message and return success without changing
+  any VM state.
+- **Attestation and key-protector payloads are fabricated filler**
+  (constant bytes / `0xAA` fill), not real TPM quotes, X.509 data, or
+  signatures. See `hgs_attestation_fuzzer.c` and
+  `hgs_key_protector_model.c`.
+- **Shielded-VM detection is hardcoded to `false`.**
+  `hgs_enumerate_hyperv_vms` (`src/hgs_utils.c`) never sets
+  `is_shielded` to `true` for any VM — the check is not implemented.
+- **The kernel-mode counterparts (`hgs_kernel_*.c`) are equally
+  stubbed** — they log "for demonstration" and return synthetic data
+  rather than performing real kernel-side sampling.
+- **`hgs_calculate_checksum` is not a cryptographic hash** — it is a
+  32-bit rolling checksum smeared into 16 bytes, used only to tag the
+  synthetic packets above.
+- **The user-mode C source does not currently compile as committed**:
+  `hgs_rpc_observer.c` includes `<detours.h>` (Microsoft Detours,
+  which is not vendored or linked) and uses C++ reference-cast syntax
+  (`(PVOID&)`) in a `.c` file; `hgs_vm_policy_sampler.c` includes
+  `<vmbusapi.h>`, which is not a public Windows SDK header;
+  `hgs_utils.c` calls `Tbsi_GetDeviceInfo` with three arguments against
+  a two-argument prototype. Any one of these fails `build.bat` /
+  the CI build step.
+
+None of this is disguised in the source — each stub is marked with an
+"In a real implementation, this would ..." comment — but it means the
+"27 passed" pytest result and the presence of a CI workflow should not
+be read as evidence that the CLI builds or that the modellers do real
+work; see [`BUILD_AND_VERIFY.md`](BUILD_AND_VERIFY.md) for the full
+gap list.
 
 ## Status
 

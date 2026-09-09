@@ -65,6 +65,8 @@ NTSTATUS HgsKernelVmPolicySamplerInit(
 }
 
 // Sample VM policy
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 NTSTATUS HgsKernelSampleVmPolicy(
     _In_ PHGS_KERNEL_DRIVER driver,
     _In_ const WCHAR* vm_name,
@@ -156,6 +158,8 @@ NTSTATUS HgsKernelModifyVmSecuritySettings(
 }
 
 // Disable VM shielding
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 NTSTATUS HgsKernelDisableVmShielding(
     _In_ PHGS_KERNEL_DRIVER driver,
     _In_ const WCHAR* vm_name

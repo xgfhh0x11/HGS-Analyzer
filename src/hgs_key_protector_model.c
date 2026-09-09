@@ -116,6 +116,8 @@ int hgs_model_key_protector(hgs_framework_t* framework, const char* vm_name, hgs
     return HGS_SUCCESS;
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_extract_vm_keys(hgs_framework_t* framework, const char* vm_name, hgs_key_protector_t* protector)
 {
     if (!framework || !vm_name || !protector) {
@@ -142,6 +144,8 @@ int hgs_extract_vm_keys(hgs_framework_t* framework, const char* vm_name, hgs_key
     return HGS_SUCCESS;
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_synthesize_key_protector(hgs_framework_t* framework, const char* vm_name, const hgs_key_protector_t* protector)
 {
     if (!framework || !vm_name || !protector) {

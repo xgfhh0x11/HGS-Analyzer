@@ -120,6 +120,8 @@ NTSTATUS HgsKernelModelKeyProtector(
 }
 
 // Extract VM keys
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 NTSTATUS HgsKernelExtractVmKeys(
     _In_ PHGS_KERNEL_DRIVER driver,
     _In_ const WCHAR* vm_name,
@@ -153,6 +155,8 @@ NTSTATUS HgsKernelExtractVmKeys(
 }
 
 // Sample key protector
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 NTSTATUS HgsKernelSampleKeyProtector(
     _In_ PHGS_KERNEL_DRIVER driver,
     _In_ const WCHAR* vm_name,

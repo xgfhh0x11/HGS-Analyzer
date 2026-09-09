@@ -7,6 +7,8 @@
 #include "hgs_manipulator.h"
 #include <wbemcli.h>
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_get_tpm_info(uint8_t** tpm_data, size_t* tpm_data_len)
 {
     if (!tpm_data || !tpm_data_len) {
@@ -56,6 +58,8 @@ int hgs_get_tpm_info(uint8_t** tpm_data, size_t* tpm_data_len)
     return HGS_SUCCESS;
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_get_system_certificates(uint8_t** cert_data, size_t* cert_data_len)
 {
     if (!cert_data || !cert_data_len) {
@@ -252,6 +256,8 @@ int hgs_enumerate_hyperv_vms(hgs_vm_info_t** vms, size_t* vm_count)
     return HGS_SUCCESS;
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_hook_rpc_functions(void)
 {
     // This function would install API hooks for RPC functions
@@ -260,6 +266,8 @@ int hgs_hook_rpc_functions(void)
     return HGS_SUCCESS;
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_unhook_rpc_functions(void)
 {
     // This function would remove API hooks for RPC functions

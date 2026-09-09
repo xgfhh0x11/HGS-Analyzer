@@ -6,6 +6,7 @@
  */
 
 #include "hgs_manipulator.h"
+#include <stddef.h>
 #include <wbemcli.h>
 #include <vmbusapi.h>
 
@@ -58,6 +59,8 @@ int hgs_vm_policy_sampler_init(hgs_framework_t* framework)
     return HGS_SUCCESS;
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_synthesize_vm_policy(hgs_framework_t* framework, const char* vm_name, const char* policy_data)
 {
     if (!framework || !vm_name || !policy_data) {
@@ -144,6 +147,8 @@ int hgs_modify_vm_security_settings(hgs_framework_t* framework, const char* vm_n
     return HGS_SUCCESS;
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_disable_vm_shielding(hgs_framework_t* framework, const char* vm_name)
 {
     if (!framework || !vm_name) {
@@ -388,52 +393,74 @@ static int SerializeSecurityPolicy(const vm_security_policy_t* policy, uint8_t**
     if (!policy || !data || !data_len) {
         return HGS_ERROR_INVALID_PARAM;
     }
-    
-    // Calculate total size
-    size_t total_size = sizeof(vm_security_policy_t) - sizeof(uint8_t*); // Exclude policy_data pointer
+
+    // Layout: [fields up to but excluding policy_data] + [policy_data_len] + [payload].
+    // NOTE: the previous version computed the excluded region as
+    // "sizeof(vm_security_policy_t) - sizeof(uint8_t*)", intending to drop the
+    // policy_data pointer. On this struct layout policy_data is NOT the last
+    // member (policy_data_len follows it), so that arithmetic actually dropped
+    // policy_data_len and left the raw policy_data heap pointer copied
+    // verbatim into the output buffer -- a heap-address leak. Use offsetof to
+    // exclude exactly the pointer field, regardless of struct layout.
+    size_t header_size = offsetof(vm_security_policy_t, policy_data);
+    size_t total_size = header_size + sizeof(policy->policy_data_len);
     total_size += policy->policy_data_len;
-    
+
     // Allocate memory
     int result = hgs_allocate_memory((void**)data, total_size);
     if (result != HGS_SUCCESS) {
         return result;
     }
-    
+
     // Serialize data
     size_t offset = 0;
-    
-    // Copy structure (without policy_data pointer)
-    memcpy(*data + offset, policy, sizeof(vm_security_policy_t) - sizeof(uint8_t*));
-    offset += sizeof(vm_security_policy_t) - sizeof(uint8_t*);
-    
-    // Copy policy data
+
+    // Copy structure fields up to (but excluding) the policy_data pointer
+    memcpy(*data + offset, policy, header_size);
+    offset += header_size;
+
+    // Copy policy_data_len explicitly (the pointer itself is never serialized)
+    memcpy(*data + offset, &policy->policy_data_len, sizeof(policy->policy_data_len));
+    offset += sizeof(policy->policy_data_len);
+
+    // Copy policy data payload
     if (policy->policy_data && policy->policy_data_len > 0) {
         memcpy(*data + offset, policy->policy_data, policy->policy_data_len);
         offset += policy->policy_data_len;
     }
-    
+
     *data_len = total_size;
     return HGS_SUCCESS;
 }
 
+// DEAD CODE: not called from any code path in this repo — SerializeSecurityPolicy's
+// only caller (SampleSecurityPolicy) never round-trips the data, so this mirror
+// function has no caller either. Kept for reference only; not exercised by tests or CI.
 static int DeserializeSecurityPolicy(const uint8_t* data, size_t data_len, vm_security_policy_t* policy)
 {
     if (!data || data_len == 0 || !policy) {
         return HGS_ERROR_INVALID_PARAM;
     }
-    
+
     // Initialize policy
     memset(policy, 0, sizeof(vm_security_policy_t));
-    
-    // Deserialize structure (without policy_data pointer)
+
+    // Mirrors SerializeSecurityPolicy's layout: header (up to but excluding
+    // policy_data) + policy_data_len + payload. policy_data was never
+    // serialized, so it is reconstructed below rather than copied in.
+    size_t header_size = offsetof(vm_security_policy_t, policy_data);
     size_t offset = 0;
-    if (data_len < sizeof(vm_security_policy_t) - sizeof(uint8_t*)) {
+    if (data_len < header_size + sizeof(policy->policy_data_len)) {
         return HGS_ERROR_INVALID_PARAM;
     }
-    
-    memcpy(policy, data + offset, sizeof(vm_security_policy_t) - sizeof(uint8_t*));
-    offset += sizeof(vm_security_policy_t) - sizeof(uint8_t*);
-    
+
+    memcpy(policy, data + offset, header_size);
+    offset += header_size;
+
+    memcpy(&policy->policy_data_len, data + offset, sizeof(policy->policy_data_len));
+    offset += sizeof(policy->policy_data_len);
+    policy->policy_data = NULL;
+
     // Deserialize policy data
     if (policy->policy_data_len > 0 && offset + policy->policy_data_len <= data_len) {
         int result = hgs_allocate_memory((void**)&policy->policy_data, policy->policy_data_len);
@@ -444,6 +471,6 @@ static int DeserializeSecurityPolicy(const uint8_t* data, size_t data_len, vm_se
             return result;
         }
     }
-    
+
     return HGS_SUCCESS;
 }

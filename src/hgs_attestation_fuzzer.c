@@ -129,6 +129,8 @@ int hgs_generate_fake_attestation(hgs_framework_t* framework, hgs_attestation_da
     return HGS_SUCCESS;
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_fuzz_tpm_data(hgs_framework_t* framework, uint8_t** tpm_data, size_t* tpm_data_len)
 {
     if (!framework || !tpm_data || !tpm_data_len) {
@@ -140,6 +142,8 @@ int hgs_fuzz_tpm_data(hgs_framework_t* framework, uint8_t** tpm_data, size_t* tp
     return GenerateFakeTPMData(framework, tpm_data, tpm_data_len);
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 int hgs_model_certificates(hgs_framework_t* framework, uint8_t** cert_data, size_t* cert_data_len)
 {
     if (!framework || !cert_data || !cert_data_len) {

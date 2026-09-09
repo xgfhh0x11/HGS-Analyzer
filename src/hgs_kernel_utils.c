@@ -34,6 +34,8 @@ static NTSTATUS EnumerateKernelHypervVms(PHGS_KERNEL_DRIVER driver, PHGS_KERNEL_
 static NTSTATUS QueryKernelVmInformation(PHGS_KERNEL_DRIVER driver, const WCHAR* vm_name, PHGS_KERNEL_VM_INFO vm_info);
 
 // Get TPM information using kernel APIs
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 NTSTATUS HgsKernelGetTpmInfo(
     _In_ PHGS_KERNEL_DRIVER driver,
     _Out_ PVOID* tpm_data,
@@ -109,6 +111,8 @@ NTSTATUS HgsKernelGetTpmInfo(
 }
 
 // Get system certificates using kernel APIs
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 NTSTATUS HgsKernelGetSystemCertificates(
     _In_ PHGS_KERNEL_DRIVER driver,
     _Out_ PVOID* cert_data,
@@ -173,6 +177,8 @@ NTSTATUS HgsKernelEnumerateHypervVms(
 }
 
 // Hook RPC functions using kernel APIs
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 NTSTATUS HgsKernelHookRpcFunctions(
     _In_ PHGS_KERNEL_DRIVER driver
 )
@@ -191,6 +197,8 @@ NTSTATUS HgsKernelHookRpcFunctions(
 }
 
 // Unhook RPC functions using kernel APIs
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 NTSTATUS HgsKernelUnhookRpcFunctions(
     _In_ PHGS_KERNEL_DRIVER driver
 )

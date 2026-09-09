@@ -46,6 +46,8 @@ VOID HgsTelemetryIncPackets(ULONG n)
     InterlockedAdd(&g_PacketsObservedTotal, (LONG)n);
 }
 
+// DEAD CODE: not called from any code path in this repo (no caller in the framework,
+// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
 VOID HgsTelemetryIncErrors(VOID)
 {
     InterlockedIncrement(&g_ErrorsTotal);
@@ -422,11 +424,13 @@ NTSTATUS HgsProcessStartAnalysis(
     PHGS_START_ANALYSIS_INPUT input;
     PHGS_START_ANALYSIS_OUTPUT output;
 
-    UNREFERENCED_PARAMETER(inputBufferSize);
-    UNREFERENCED_PARAMETER(outputBufferSize);
-
     if (!inputBuffer || !outputBuffer) {
         return STATUS_INVALID_PARAMETER;
+    }
+
+    if (inputBufferSize < sizeof(hgs_start_analysis_input_t) ||
+        outputBufferSize < sizeof(hgs_start_analysis_output_t)) {
+        return STATUS_BUFFER_TOO_SMALL;
     }
 
     input = (PHGS_START_ANALYSIS_INPUT)inputBuffer;
@@ -474,10 +478,13 @@ NTSTATUS HgsProcessStopAnalysis(
 
     UNREFERENCED_PARAMETER(inputBuffer);
     UNREFERENCED_PARAMETER(inputBufferSize);
-    UNREFERENCED_PARAMETER(outputBufferSize);
 
     if (!outputBuffer) {
         return STATUS_INVALID_PARAMETER;
+    }
+
+    if (outputBufferSize < sizeof(hgs_start_analysis_output_t)) {
+        return STATUS_BUFFER_TOO_SMALL;
     }
 
     output = (PHGS_START_ANALYSIS_OUTPUT)outputBuffer;
@@ -515,10 +522,13 @@ NTSTATUS HgsProcessListVms(
 
     UNREFERENCED_PARAMETER(inputBuffer);
     UNREFERENCED_PARAMETER(inputBufferSize);
-    UNREFERENCED_PARAMETER(outputBufferSize);
 
     if (!outputBuffer) {
         return STATUS_INVALID_PARAMETER;
+    }
+
+    if (outputBufferSize < sizeof(hgs_list_vms_output_t)) {
+        return STATUS_BUFFER_TOO_SMALL;
     }
 
     output = (PHGS_LIST_VMS_OUTPUT)outputBuffer;
@@ -550,10 +560,13 @@ NTSTATUS HgsProcessGetStatus(
 
     UNREFERENCED_PARAMETER(inputBuffer);
     UNREFERENCED_PARAMETER(inputBufferSize);
-    UNREFERENCED_PARAMETER(outputBufferSize);
 
     if (!outputBuffer) {
         return STATUS_INVALID_PARAMETER;
+    }
+
+    if (outputBufferSize < sizeof(hgs_get_status_output_t)) {
+        return STATUS_BUFFER_TOO_SMALL;
     }
 
     output = (PHGS_GET_STATUS_OUTPUT)outputBuffer;
@@ -596,10 +609,13 @@ NTSTATUS HgsProcessSampleData(
     PHGS_START_ANALYSIS_OUTPUT output;
 
     UNREFERENCED_PARAMETER(inputBufferSize);
-    UNREFERENCED_PARAMETER(outputBufferSize);
 
     if (!inputBuffer || !outputBuffer) {
         return STATUS_INVALID_PARAMETER;
+    }
+
+    if (outputBufferSize < sizeof(hgs_start_analysis_output_t)) {
+        return STATUS_BUFFER_TOO_SMALL;
     }
 
     output = (PHGS_START_ANALYSIS_OUTPUT)outputBuffer;
