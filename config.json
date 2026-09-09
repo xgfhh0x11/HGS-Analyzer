@@ -1,0 +1,62 @@
+{
+    "hgs": {
+        "endpoint": "localhost",
+        "port": 443,
+        "attestation_mode": "tpm",
+        "timeout": 30000,
+        "retry_count": 3
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "hgs_manipulator.log",
+        "console": true,
+        "max_file_size": 10485760,
+        "max_files": 5
+    },
+    "analysis": {
+        "timeout": 30000,
+        "retry_count": 3,
+        "delay_between_steps": 1000,
+        "cleanup_on_failure": true
+    },
+    "rpc_observer": {
+        "hook_all_functions": true,
+        "observe_timeout": 10000,
+        "packet_buffer_size": 4096,
+        "log_packets": false
+    },
+    "attestation_fuzzer": {
+        "tpm_mode": {
+            "pcr_count": 24,
+            "pcr_size": 32,
+            "quote_size": 256,
+            "signature_size": 256
+        },
+        "admin_mode": {
+            "certificate_chain_size": 2048,
+            "signature_size": 256
+        },
+        "custom_mode": {
+            "data_size": 1024,
+            "signature_size": 256
+        }
+    },
+    "key_protector_model": {
+        "key_size": 32,
+        "protector_size": 256,
+        "algorithm_id": "CALG_AES_256",
+        "expiration_hours": 24
+    },
+    "vm_policy_sampler": {
+        "policy_size": 1024,
+        "max_policy_entries": 32,
+        "backup_original": true,
+        "restore_on_cleanup": true
+    },
+    "security": {
+        "require_admin": true,
+        "check_hyperv_running": true,
+        "validate_vm_names": true,
+        "log_security_events": true
+    }
+}

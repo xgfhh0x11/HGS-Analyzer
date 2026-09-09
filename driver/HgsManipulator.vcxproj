@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HgsManipulator.vcxproj - WDK KMDF driver project for the HGS kernel-side
+  modelling components. Produces HgsManipulator.sys and packages it with
+  hgs_kernel.inf into a signable driver package.
+
+  Build (from a "x64 Native Tools Command Prompt for VS 2022" with the
+  WDK + "Windows Driver Kit" workload installed):
+
+      msbuild driver\HgsManipulator.vcxproj /p:Configuration=Release /p:Platform=x64
+
+  This is the supported path for a KMDF driver: KMDF needs the framework
+  stub libraries and the WdfCoInstaller wiring that the bespoke
+  cl/link script (build_kernel_final.bat) does not provide. Output lands
+  under driver\x64\Release\HgsManipulator\ (.sys + stamped .inf + .cat).
+
+  NOTE: WindowsTargetPlatformVersion below is set to a recent SDK; adjust
+  it to a 10.0.* version you actually have installed if MSBuild reports it
+  cannot find that SDK. KmdfLibraryVersion (1.15) is mirrored in
+  hgs_kernel.inf - keep the two in sync.
+-->
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7A3F1C2E-9B4D-4E5A-8C6F-1D2E3F4A5B6C}</ProjectGuid>
+    <TemplateGuid>{1bc93793-694f-48fe-9372-81e2b05556fd}</TemplateGuid>
+    <RootNamespace>HgsManipulator</RootNamespace>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <TargetVersion>Windows10</TargetVersion>
+    <DriverType>KMDF</DriverType>
+    <DriverTargetPlatform>Universal</DriverTargetPlatform>
+    <ConfigurationType>Driver</ConfigurationType>
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Release'">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <IncludePath>..\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\hgs_kernel_driver.c" />
+    <ClCompile Include="..\src\hgs_kernel_framework.c" />
+    <ClCompile Include="..\src\hgs_kernel_rpc_observer.c" />
+    <ClCompile Include="..\src\hgs_kernel_attestation_fuzzer.c" />
+    <ClCompile Include="..\src\hgs_kernel_key_protector_model.c" />
+    <ClCompile Include="..\src\hgs_kernel_vm_policy_sampler.c" />
+    <ClCompile Include="..\src\hgs_kernel_utils.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\hgs_kernel_driver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Inf Include="hgs_kernel.inf" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

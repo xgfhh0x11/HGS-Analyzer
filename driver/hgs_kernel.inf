@@ -1,0 +1,76 @@
+;
+; hgs_kernel.inf -- HGS Attestation Path Analyzer (research KMDF driver)
+;
+; Software-only, root-enumerated KMDF driver. Installs HgsManipulator.sys,
+; which creates the control device \Device\HgsManipulator
+; (\DosDevices\HgsManipulator) and runs the kernel-side attestation/RPC
+; modelling components against synthetic streams.
+;
+; RESEARCH ARTEFACT. Install only on a dedicated lab host with test
+; signing enabled and proper authorisation. Not a production tool, not an
+; exploit kit, and it does not touch any deployed HGS endpoint. See the
+; repository README "Threat model and scope".
+;
+; NT$ARCH$ and the DriverVer date are resolved by stampinf at build time
+; (the WDK driver project runs stampinf automatically).
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider    = %ProviderName%
+CatalogFile = HgsManipulator.cat
+DriverVer   = 06/10/2026,2.0.0.0
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13            ; driver store (modern) / System32\drivers
+
+[SourceDisksNames]
+1 = %DiskName%
+
+[SourceDisksFiles]
+HgsManipulator.sys = 1
+
+[Manufacturer]
+%ManufacturerName% = Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%DeviceDesc% = HgsManipulator_Install, root\HgsManipulator
+
+;-------------------------------------------------------------------------
+; Install section
+;-------------------------------------------------------------------------
+[HgsManipulator_Install.NT]
+CopyFiles = HgsManipulator_CopyFiles
+
+[HgsManipulator_CopyFiles]
+HgsManipulator.sys
+
+[HgsManipulator_Install.NT.Services]
+AddService = HgsManipulator, %SPSVCINST_ASSOCSERVICE%, HgsManipulator_Service
+
+[HgsManipulator_Service]
+DisplayName   = %ServiceDesc%
+ServiceType   = 1             ; SERVICE_KERNEL_DRIVER
+StartType     = 3             ; SERVICE_DEMAND_START
+ErrorControl  = 1             ; SERVICE_ERROR_NORMAL
+ServiceBinary = %13%\HgsManipulator.sys
+
+;-------------------------------------------------------------------------
+; KMDF coinstaller wiring
+;-------------------------------------------------------------------------
+[HgsManipulator_Install.NT.Wdf]
+KmdfService = HgsManipulator, HgsManipulator_wdfsect
+
+[HgsManipulator_wdfsect]
+KmdfLibraryVersion = 1.15
+
+;-------------------------------------------------------------------------
+[Strings]
+SPSVCINST_ASSOCSERVICE = 0x00000002
+ProviderName     = "HGS-Analyzer (research)"
+ManufacturerName = "HGS-Analyzer (research)"
+DiskName         = "HGS Attestation Path Analyzer Install Disk"
+DeviceDesc       = "HGS Attestation Path Analyzer (research, lab-only)"
+ServiceDesc      = "HGS Attestation Path Analyzer Kernel Service"

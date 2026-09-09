@@ -1,0 +1,48 @@
+# Build outputs
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.exe
+*.sys
+*.cat
+*.pfx
+*.cer
+# Generated/stamped INFs are build output, but the hand-authored source
+# INF for the driver package is tracked.
+*.inf
+!driver/hgs_kernel.inf
+
+# Visual Studio user/state (NOT project files)
+.vs/
+*.vcxproj.user
+*.suo
+
+# Build directories
+bin/
+core/
+build/
+obj/
+x64/Release/
+x64/Debug/
+Release/
+Debug/
+
+# Logs
+*.log
+*.wrn
+*.err
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python (tests/)
+__pycache__/
+*.pyc
+.pytest_cache/

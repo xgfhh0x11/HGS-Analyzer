@@ -1,0 +1,98 @@
+# HGS Kernel Driver Makefile
+# Windows Driver Kit (WDK) build configuration
+
+# Target configuration
+TARGETNAME=HgsManipulator
+TARGETTYPE=DRIVER
+KMDF_VERSION_MAJOR=1
+KMDF_VERSION_MINOR=15
+
+# Source files
+SOURCES=\
+    src\hgs_kernel_driver.c \
+    src\hgs_kernel_framework.c \
+    src\hgs_kernel_rpc_observer.c \
+    src\hgs_kernel_attestation_fuzzer.c \
+    src\hgs_kernel_key_protector_model.c \
+    src\hgs_kernel_vm_policy_sampler.c \
+    src\hgs_kernel_utils.c
+
+# Target libraries
+TARGETLIBS=\
+    $(DDK_LIB_PATH)\ntoskrnl.lib \
+    $(DDK_LIB_PATH)\hal.lib \
+    $(DDK_LIB_PATH)\wmilib.lib \
+    $(DDK_LIB_PATH)\crypt32.lib \
+    $(DDK_LIB_PATH)\tbs.lib \
+    $(DDK_LIB_PATH)\rpcrt4.lib
+
+# Include directories
+INCLUDES=\
+    include
+
+# Compiler definitions
+C_DEFINES=$(C_DEFINES) -DUNICODE -D_UNICODE -DDBG=1
+C_DEFINES=$(C_DEFINES) -DHGS_KERNEL_VERBOSE_LOGGING=1
+C_DEFINES=$(C_DEFINES) -DHGS_KERNEL_DEBUG=1
+
+# Compiler warnings
+MSC_WARNING_LEVEL=/W4 /WX
+
+# Debug configuration
+!IF "$(DDKBUILDENV)" == "chk"
+C_DEFINES=$(C_DEFINES) -DDBG=1
+!ENDIF
+
+# Release configuration
+!IF "$(DDKBUILDENV)" == "fre"
+C_DEFINES=$(C_DEFINES) -DDBG=0
+!ENDIF
+
+# Build targets
+all: $(TARGETNAME).sys
+
+$(TARGETNAME).sys: $(SOURCES)
+    @echo Building HGS Kernel Driver...
+    @echo Target: $(TARGETNAME).sys
+    @echo Sources: $(SOURCES)
+    @echo.
+
+# Clean target
+clean:
+    @echo Cleaning HGS Kernel Driver...
+    @if exist $(TARGETNAME).sys del $(TARGETNAME).sys
+    @if exist $(TARGETNAME).pdb del $(TARGETNAME).pdb
+    @if exist $(TARGETNAME).map del $(TARGETNAME).map
+    @if exist obj\*.obj del obj\*.obj
+    @if exist obj\*.pdb del obj\*.pdb
+    @echo Clean completed.
+
+# Install target
+install: $(TARGETNAME).sys
+    @echo Installing HGS Kernel Driver...
+    @copy $(TARGETNAME).sys C:\Windows\System32\drivers\
+    @echo Driver installed successfully.
+
+# Uninstall target
+uninstall:
+    @echo Uninstalling HGS Kernel Driver...
+    @if exist C:\Windows\System32\drivers\$(TARGETNAME).sys del C:\Windows\System32\drivers\$(TARGETNAME).sys
+    @echo Driver uninstalled successfully.
+
+# Help target
+help:
+    @echo HGS Kernel Driver Build System
+    @echo.
+    @echo Available targets:
+    @echo   all       - Build the driver (default)
+    @echo   clean     - Clean build artifacts
+    @echo   install   - Install the driver
+    @echo   uninstall - Uninstall the driver
+    @echo   help      - Show this help message
+    @echo.
+    @echo Build environment variables:
+    @echo   DDKBUILDENV=chk  - Debug build
+    @echo   DDKBUILDENV=fre  - Release build
+    @echo.
+
+.PHONY: all clean install uninstall help
