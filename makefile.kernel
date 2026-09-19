@@ -2,7 +2,7 @@
 # Windows Driver Kit (WDK) build configuration
 
 # Target configuration
-TARGETNAME=HgsManipulator
+TARGETNAME=HgsAnalyzer
 TARGETTYPE=DRIVER
 KMDF_VERSION_MAJOR=1
 KMDF_VERSION_MINOR=15

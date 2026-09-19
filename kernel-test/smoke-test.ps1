@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-  Smoke-test the loaded HgsManipulator driver via its IOCTL surface. SAFETY-GATED.
+  Smoke-test the loaded HgsAnalyzer driver via its IOCTL surface. SAFETY-GATED.
 .DESCRIPTION
-  Runs INSIDE the guest after the driver is loaded. Opens \\.\HgsManipulator and
+  Runs INSIDE the guest after the driver is loaded. Opens \\.\HgsAnalyzer and
   issues each IOCTL twice: once with a correctly-sized buffer, once deliberately
   undersized to confirm the STATUS_BUFFER_TOO_SMALL guards added in the review fix.
   Dry-run unless -Arm (opening the device and issuing IOCTLs is what exercises
@@ -22,7 +22,7 @@ $ioctls = [ordered]@{
 }
 
 if (-not $Arm) {
-    Write-Host "[smoke] DRY-RUN (no -Arm). Would open \\.\HgsManipulator and issue:" -ForegroundColor Yellow
+    Write-Host "[smoke] DRY-RUN (no -Arm). Would open \\.\HgsAnalyzer and issue:" -ForegroundColor Yellow
     $ioctls.GetEnumerator() | ForEach-Object { Write-Host ("    {0} = 0x{1:X8}  (sized + undersized)" -f $_.Key, $_.Value) }
     Write-Host "[smoke] Undersized calls must return STATUS_BUFFER_TOO_SMALL (0xC0000023), not crash." -ForegroundColor Yellow
     Write-Host "[smoke] Re-run with -Arm inside the DISPOSABLE guest (driver loaded, verifier on)." -ForegroundColor Yellow
@@ -43,9 +43,9 @@ public static class Dev {
 '@
 Add-Type -TypeDefinition $sig
 $GENERIC_RW = 0xC0000000; $OPEN_EXISTING = 3
-$h = [Dev]::CreateFile('\\.\HgsManipulator', $GENERIC_RW, 0, [IntPtr]::Zero, $OPEN_EXISTING, 0, [IntPtr]::Zero)
+$h = [Dev]::CreateFile('\\.\HgsAnalyzer', $GENERIC_RW, 0, [IntPtr]::Zero, $OPEN_EXISTING, 0, [IntPtr]::Zero)
 if ($h -eq [IntPtr](-1) -or $h -eq [IntPtr]::Zero) {
-    Write-Error "CreateFile \\.\HgsManipulator failed (Win32 $([Runtime.InteropServices.Marshal]::GetLastWin32Error())). Is the driver loaded?"; exit 2
+    Write-Error "CreateFile \\.\HgsAnalyzer failed (Win32 $([Runtime.InteropServices.Marshal]::GetLastWin32Error())). Is the driver loaded?"; exit 2
 }
 try {
     foreach ($e in $ioctls.GetEnumerator()) {

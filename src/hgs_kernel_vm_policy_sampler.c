@@ -157,38 +157,9 @@ NTSTATUS HgsKernelModifyVmSecuritySettings(
     return STATUS_SUCCESS;
 }
 
-// Disable VM shielding
-// DEAD CODE: not called from any code path in this repo (no caller in the framework,
-// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
-NTSTATUS HgsKernelDisableVmShielding(
-    _In_ PHGS_KERNEL_DRIVER driver,
-    _In_ const WCHAR* vm_name
-)
-{
-    NTSTATUS status;
-
-    if (!driver || !vm_name) {
-        return STATUS_INVALID_PARAMETER;
-    }
-
-    HgsKernelInfoLog(driver, "Disabling VM shielding for: %ws", vm_name);
-
-    // Disable VM shielding
-    status = DisableKernelVmShielding(driver, vm_name);
-    if (!NT_SUCCESS(status)) {
-        HgsKernelErrorLog(driver, "Failed to disable VM shielding: 0x%x", status);
-        return status;
-    }
-
-    // Analysis security checks
-    status = AnalysisKernelVmSecurityChecks(driver, vm_name);
-    if (!NT_SUCCESS(status)) {
-        HgsKernelWarnLog(driver, "Failed to analysis security checks: 0x%x", status);
-    }
-
-    HgsKernelInfoLog(driver, "VM shielding disabled successfully for: %ws", vm_name);
-    return STATUS_SUCCESS;
-}
+// (removed) HgsKernelDisableVmShielding: dead code, no caller in the framework,
+// CLI, or kernel IOCTL dispatch. This is a telemetry/analysis driver; a kernel-side
+// "disable VM shielding" path does not belong here.
 
 // Cleanup kernel VM policy sampler
 NTSTATUS HgsKernelVmPolicySamplerCleanup(

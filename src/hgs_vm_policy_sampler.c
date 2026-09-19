@@ -31,7 +31,6 @@ typedef struct {
 
 // Function prototypes
 static int ModifyVMShieldingPolicy(hgs_framework_t* framework, const char* vm_name);
-static int DisableVMShielding(hgs_framework_t* framework, const char* vm_name);
 static int ModifyVMSecuritySettings(hgs_framework_t* framework, const char* vm_name);
 static int SampleSecurityPolicy(hgs_framework_t* framework, const char* vm_name, const vm_security_policy_t* policy);
 static int ExtractVMPolicy(hgs_framework_t* framework, const char* vm_name, vm_security_policy_t* policy);
@@ -147,33 +146,9 @@ int hgs_modify_vm_security_settings(hgs_framework_t* framework, const char* vm_n
     return HGS_SUCCESS;
 }
 
-// DEAD CODE: not called from any code path in this repo (no caller in the framework,
-// CLI, or kernel IOCTL dispatch). Kept for reference only; not exercised by tests or CI.
-int hgs_disable_vm_shielding(hgs_framework_t* framework, const char* vm_name)
-{
-    if (!framework || !vm_name) {
-        return HGS_ERROR_INVALID_PARAM;
-    }
-    
-    HGS_INFO_LOG(framework, "Disabling VM shielding for: %s", vm_name);
-    
-    // Validate VM name
-    int result = hgs_validate_vm_name(vm_name);
-    if (result != HGS_SUCCESS) {
-        HGS_ERROR_LOG(framework, "Invalid VM name: %s", vm_name);
-        return result;
-    }
-    
-    // Disable VM shielding
-    result = DisableVMShielding(framework, vm_name);
-    if (result != HGS_SUCCESS) {
-        HGS_ERROR_LOG(framework, "Failed to disable VM shielding: %d", result);
-        return result;
-    }
-    
-    HGS_INFO_LOG(framework, "VM shielding disabled successfully");
-    return HGS_SUCCESS;
-}
+// (removed) hgs_disable_vm_shielding and its DisableVMShielding helper: dead code
+// with no caller anywhere in the framework, CLI, or kernel dispatch. This is a
+// telemetry/analysis tool; a "disable VM shielding" path does not belong here.
 
 int hgs_vm_policy_sampler_cleanup(hgs_framework_t* framework)
 {
@@ -265,24 +240,6 @@ static int ModifyVMShieldingPolicy(hgs_framework_t* framework, const char* vm_na
     return HGS_SUCCESS;
 }
 
-static int DisableVMShielding(hgs_framework_t* framework, const char* vm_name)
-{
-    if (!framework || !vm_name) {
-        return HGS_ERROR_INVALID_PARAM;
-    }
-    
-    HGS_DEBUG_LOG(framework, "Disabling VM shielding for: %s", vm_name);
-    
-    // This would disable the VM's shielding mechanisms
-    // Implementation would involve modifying VM configuration to disable:
-    // - Secure Boot
-    // - BitLocker encryption
-    // - Virtual TPM
-    // - Other shielding features
-    
-    HGS_DEBUG_LOG(framework, "VM shielding disabled successfully");
-    return HGS_SUCCESS;
-}
 
 static int ModifyVMSecuritySettings(hgs_framework_t* framework, const char* vm_name)
 {

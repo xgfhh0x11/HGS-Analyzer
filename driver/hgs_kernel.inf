@@ -1,9 +1,9 @@
 ;
 ; hgs_kernel.inf -- HGS Attestation Path Analyzer (research KMDF driver)
 ;
-; Software-only, root-enumerated KMDF driver. Installs HgsManipulator.sys,
-; which creates the control device \Device\HgsManipulator
-; (\DosDevices\HgsManipulator) and runs the kernel-side attestation/RPC
+; Software-only, root-enumerated KMDF driver. Installs HgsAnalyzer.sys,
+; which creates the control device \Device\HgsAnalyzer
+; (\DosDevices\HgsAnalyzer) and runs the kernel-side attestation/RPC
 ; modelling components against synthetic streams.
 ;
 ; RESEARCH ARTEFACT. Install only on a dedicated lab host with test
@@ -19,7 +19,7 @@ Signature   = "$WINDOWS NT$"
 Class       = System
 ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
 Provider    = %ProviderName%
-CatalogFile = HgsManipulator.cat
+CatalogFile = HgsAnalyzer.cat
 DriverVer   = 06/10/2026,2.0.0.0
 PnpLockdown = 1
 
@@ -30,40 +30,40 @@ DefaultDestDir = 13            ; driver store (modern) / System32\drivers
 1 = %DiskName%
 
 [SourceDisksFiles]
-HgsManipulator.sys = 1
+HgsAnalyzer.sys = 1
 
 [Manufacturer]
 %ManufacturerName% = Standard,NT$ARCH$
 
 [Standard.NT$ARCH$]
-%DeviceDesc% = HgsManipulator_Install, root\HgsManipulator
+%DeviceDesc% = HgsAnalyzer_Install, root\HgsAnalyzer
 
 ;-------------------------------------------------------------------------
 ; Install section
 ;-------------------------------------------------------------------------
-[HgsManipulator_Install.NT]
-CopyFiles = HgsManipulator_CopyFiles
+[HgsAnalyzer_Install.NT]
+CopyFiles = HgsAnalyzer_CopyFiles
 
-[HgsManipulator_CopyFiles]
-HgsManipulator.sys
+[HgsAnalyzer_CopyFiles]
+HgsAnalyzer.sys
 
-[HgsManipulator_Install.NT.Services]
-AddService = HgsManipulator, %SPSVCINST_ASSOCSERVICE%, HgsManipulator_Service
+[HgsAnalyzer_Install.NT.Services]
+AddService = HgsAnalyzer, %SPSVCINST_ASSOCSERVICE%, HgsAnalyzer_Service
 
-[HgsManipulator_Service]
+[HgsAnalyzer_Service]
 DisplayName   = %ServiceDesc%
 ServiceType   = 1             ; SERVICE_KERNEL_DRIVER
 StartType     = 3             ; SERVICE_DEMAND_START
 ErrorControl  = 1             ; SERVICE_ERROR_NORMAL
-ServiceBinary = %13%\HgsManipulator.sys
+ServiceBinary = %13%\HgsAnalyzer.sys
 
 ;-------------------------------------------------------------------------
 ; KMDF coinstaller wiring
 ;-------------------------------------------------------------------------
-[HgsManipulator_Install.NT.Wdf]
-KmdfService = HgsManipulator, HgsManipulator_wdfsect
+[HgsAnalyzer_Install.NT.Wdf]
+KmdfService = HgsAnalyzer, HgsAnalyzer_wdfsect
 
-[HgsManipulator_wdfsect]
+[HgsAnalyzer_wdfsect]
 KmdfLibraryVersion = 1.15
 
 ;-------------------------------------------------------------------------

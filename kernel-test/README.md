@@ -1,6 +1,6 @@
 # HGS-Analyzer — dynamic kernel-test harness
 
-Runbook for exercising the `HgsManipulator.sys` KMDF driver on a **disposable**
+Runbook for exercising the `HgsAnalyzer.sys` KMDF driver on a **disposable**
 Hyper-V kdnet guest. Read the safety section before doing anything.
 
 ## Target / channel
@@ -37,7 +37,7 @@ compile as committed:
 - `vmbusapi.h` is referenced but is not a public SDK header.
 - `Tbsi_GetDeviceInfo` is called with the wrong arity.
 
-The **kernel driver** (`driver/HgsManipulator.vcxproj`, KMDF) is a separate
+The **kernel driver** (`driver/HgsAnalyzer.vcxproj`, KMDF) is a separate
 build target and may compile independently; `build.ps1` builds the driver
 target. Fix the user-mode blockers before relying on the user-mode client.
 
@@ -45,16 +45,16 @@ target. Fix the user-mode blockers before relying on the user-mode client.
 
 | File | Purpose |
 |------|---------|
-| `build.ps1` | Build `HgsManipulator.sys` (Release, x64) with the host WDK. Prints exact errors and exits non-zero on failure — never fakes success. |
+| `build.ps1` | Build `HgsAnalyzer.sys` (Release, x64) with the host WDK. Prints exact errors and exits non-zero on failure — never fakes success. |
 | `load.ps1` | Deploy + `sc create` + `sc start` **inside the guest**. Dry-run by default; pass `-Arm` to actually act. |
 | `unload.ps1` | `sc stop` + `sc delete`. |
 | `kd-triage.txt` | `kd` command script: crash triage, Driver Verifier, pool checks. |
-| `smoke-test.ps1` | Opens `\\.\HgsManipulator` and issues the 5 IOCTLs, including deliberately-undersized buffers to confirm the `STATUS_BUFFER_TOO_SMALL` guards. Dry-run unless `-Arm`. |
+| `smoke-test.ps1` | Opens `\\.\HgsAnalyzer` and issues the 5 IOCTLs, including deliberately-undersized buffers to confirm the `STATUS_BUFFER_TOO_SMALL` guards. Dry-run unless `-Arm`. |
 
 ## Device / IOCTL surface
 
-- User-mode device path: `\\.\HgsManipulator` (symlink `\DosDevices\HgsManipulator`).
-- Service name used by the scripts: `HgsManipulator`.
+- User-mode device path: `\\.\HgsAnalyzer` (symlink `\DosDevices\HgsAnalyzer`).
+- Service name used by the scripts: `HgsAnalyzer`.
 - IOCTLs (all `METHOD_BUFFERED`, `FILE_DEVICE_UNKNOWN`, base `0x8000`):
   `IOCTL_HGS_START_ANALYSIS` (0x8001), `_STOP_ANALYSIS` (0x8002),
   `_LIST_VMS` (0x8003), `_GET_STATUS` (0x8004), `_SAMPLE_DATA` (0x8005).
@@ -62,7 +62,7 @@ target. Fix the user-mode blockers before relying on the user-mode client.
 ## SAFETY
 
 - **Always checkpoint the guest before loading.** Revert on any bugcheck.
-- Enable **Driver Verifier** (`verifier /standard /driver HgsManipulator.sys`)
+- Enable **Driver Verifier** (`verifier /standard /driver HgsAnalyzer.sys`)
   on the guest before load — it turns latent pool/handle bugs into clean,
   attributable bugchecks the debugger can analyze, instead of silent corruption.
 - Never load on a machine you care about. This is for the disposable guest only.

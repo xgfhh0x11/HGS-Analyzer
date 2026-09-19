@@ -1,4 +1,4 @@
-HGS-Analyzer / HgsManipulator.sys -- kd command reference
+HGS-Analyzer / HgsAnalyzer.sys -- kd command reference
 =========================================================
 Run these in the kd session attached to the guest (kd -k net:port=<PORT>,key=<KEY>).
 Lines beginning with ">" are what you type at the kd prompt.
@@ -6,12 +6,12 @@ Lines beginning with ">" are what you type at the kd prompt.
 --- initial attach / sanity ---
 > .reload                         ; reload symbols
 > vertarget                       ; confirm which guest you are on (DISPOSABLE only)
-> lm m HgsManipulator             ; is the driver loaded?
+> lm m HgsAnalyzer             ; is the driver loaded?
 
 --- enable Driver Verifier on the driver (do this, then reboot guest, before load) ---
-  (in the guest console, not kd:)  verifier /standard /driver HgsManipulator.sys
+  (in the guest console, not kd:)  verifier /standard /driver HgsAnalyzer.sys
   verify it took:
-> !verifier 3 HgsManipulator.sys
+> !verifier 3 HgsAnalyzer.sys
 
 --- after a bugcheck ---
 > !analyze -v                     ; primary triage: fault, stack, culprit

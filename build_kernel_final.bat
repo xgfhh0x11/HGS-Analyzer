@@ -102,7 +102,7 @@ echo.
 
 REM Create .sys file using linker
 echo Linking kernel driver...
-link /nologo /DRIVER /ENTRY:DriverEntry /SUBSYSTEM:NATIVE /MACHINE:X64 /OUT:bin\kernel\HgsManipulator.sys *.obj /LIBPATH:"%SDK_KM_LIB%" ntoskrnl.lib hal.lib wmilib.lib
+link /nologo /DRIVER /ENTRY:DriverEntry /SUBSYSTEM:NATIVE /MACHINE:X64 /OUT:bin\kernel\HgsAnalyzer.sys *.obj /LIBPATH:"%SDK_KM_LIB%" ntoskrnl.lib hal.lib wmilib.lib
 
 if %ERRORLEVEL% neq 0 (
     echo.
@@ -119,11 +119,11 @@ echo ========================================
 echo    Kernel Driver Build Complete!
 echo ========================================
 echo.
-echo Driver: bin\kernel\HgsManipulator.sys
+echo Driver: bin\kernel\HgsAnalyzer.sys
 echo.
 echo To install the driver (test-signing must be enabled on the lab host):
-echo   sc create HgsManipulator type= kernel start= demand binPath= "C:\Windows\System32\drivers\HgsManipulator.sys"
-echo   sc start HgsManipulator
+echo   sc create HgsAnalyzer type= kernel start= demand binPath= "C:\Windows\System32\drivers\HgsAnalyzer.sys"
+echo   sc start HgsAnalyzer
 echo.
 
 endlocal

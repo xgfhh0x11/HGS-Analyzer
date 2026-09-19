@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-  Build the HgsManipulator.sys KMDF driver (Release, x64) with the host WDK.
+  Build the HgsAnalyzer.sys KMDF driver (Release, x64) with the host WDK.
 .DESCRIPTION
-  Locates msbuild, builds driver/HgsManipulator.vcxproj, and reports the
+  Locates msbuild, builds driver/HgsAnalyzer.vcxproj, and reports the
   resulting .sys path. On failure it prints the compiler errors verbatim and
   exits non-zero -- it never reports a build it did not produce.
   Runs on the HOST (where the WDK + msbuild live), not in the guest.
@@ -14,7 +14,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
-$proj = Join-Path $repo 'driver\HgsManipulator.vcxproj'
+$proj = Join-Path $repo 'driver\HgsAnalyzer.vcxproj'
 if (-not (Test-Path $proj)) { Write-Error "Project not found: $proj"; exit 2 }
 
 # Find msbuild via vswhere, then PATH.
@@ -38,9 +38,9 @@ if ($code -ne 0) {
     Write-Host "[build] See $log and kernel-test\README.md 'KNOWN BUILD BLOCKERS'." -ForegroundColor Yellow
     exit $code
 }
-$sys = Get-ChildItem -Path $repo -Recurse -Filter 'HgsManipulator.sys' -ErrorAction SilentlyContinue |
+$sys = Get-ChildItem -Path $repo -Recurse -Filter 'HgsAnalyzer.sys' -ErrorAction SilentlyContinue |
        Where-Object { $_.FullName -match "\\$Platform\\" -or $_.FullName -match "\\$Configuration\\" } |
        Sort-Object LastWriteTime -Descending | Select-Object -First 1
-if (-not $sys) { Write-Error 'Build reported success but HgsManipulator.sys was not found.'; exit 3 }
+if (-not $sys) { Write-Error 'Build reported success but HgsAnalyzer.sys was not found.'; exit 3 }
 Write-Host "[build] OK: $($sys.FullName)" -ForegroundColor Green
 Write-Output $sys.FullName

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  HgsManipulator.vcxproj - WDK KMDF driver project for the HGS kernel-side
-  modelling components. Produces HgsManipulator.sys and packages it with
+  HgsAnalyzer.vcxproj - WDK KMDF driver project for the HGS kernel-side
+  modelling components. Produces HgsAnalyzer.sys and packages it with
   hgs_kernel.inf into a signable driver package.
 
   Build (from a "x64 Native Tools Command Prompt for VS 2022" with the
   WDK + "Windows Driver Kit" workload installed):
 
-      msbuild driver\HgsManipulator.vcxproj /p:Configuration=Release /p:Platform=x64
+      msbuild driver\HgsAnalyzer.vcxproj /p:Configuration=Release /p:Platform=x64
 
   This is the supported path for a KMDF driver: KMDF needs the framework
   stub libraries and the WdfCoInstaller wiring that the bespoke
   cl/link script (build_kernel_final.bat) does not provide. Output lands
-  under driver\x64\Release\HgsManipulator\ (.sys + stamped .inf + .cat).
+  under driver\x64\Release\HgsAnalyzer\ (.sys + stamped .inf + .cat).
 
   NOTE: WindowsTargetPlatformVersion below is set to a recent SDK; adjust
   it to a 10.0.* version you actually have installed if MSBuild reports it
@@ -33,7 +33,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7A3F1C2E-9B4D-4E5A-8C6F-1D2E3F4A5B6C}</ProjectGuid>
     <TemplateGuid>{1bc93793-694f-48fe-9372-81e2b05556fd}</TemplateGuid>
-    <RootNamespace>HgsManipulator</RootNamespace>
+    <RootNamespace>HgsAnalyzer</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -59,6 +59,10 @@
     <ClCompile>
       <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <!-- Build-config only: WDK driver template defaults to /WX; a benign warning
+           surfaces in the toolchain vcruntime.h under this SDK. Keep warnings
+           visible but non-fatal so the driver builds. No driver code changed. -->
+      <TreatWarningAsError>false</TreatWarningAsError>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -78,4 +82,14 @@
     <Inf Include="hgs_kernel.inf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <!-- In-build signing disabled: produce an unsigned HgsAnalyzer.sys; test-sign it
+       as a separate signtool step. Keeps the build independent of the WDK default
+       test-sign task (which needs an explicit /fd and a cert). -->
+  <PropertyGroup Label="Signing">
+    <SignMode>Off</SignMode>
+    <GenerateTestCertificate>false</GenerateTestCertificate>
+    <!-- Only the signed .sys is needed for kdnet-guest testing, not a catalog
+         (.cat) package; skip Inf2Cat to avoid its package-dir CopyFiles check. -->
+    <EnableInf2cat>false</EnableInf2cat>
+  </PropertyGroup>
 </Project>

@@ -162,7 +162,6 @@ int hgs_key_protector_model_cleanup(hgs_framework_t* framework);
 int hgs_vm_policy_sampler_init(hgs_framework_t* framework);
 int hgs_synthesize_vm_policy(hgs_framework_t* framework, const char* vm_name, const char* policy_data);
 int hgs_modify_vm_security_settings(hgs_framework_t* framework, const char* vm_name);
-int hgs_disable_vm_shielding(hgs_framework_t* framework, const char* vm_name);
 int hgs_vm_policy_sampler_cleanup(hgs_framework_t* framework);
 
 // Utility Functions

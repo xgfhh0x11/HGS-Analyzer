@@ -35,9 +35,9 @@
 #define HGS_DRIVER_VERSION_STRING "2.0.0"
 
 // Driver information
-#define HGS_DRIVER_NAME L"\\Device\\HgsManipulator"
-#define HGS_DRIVER_SYMBOLIC_NAME L"\\DosDevices\\HgsManipulator"
-#define HGS_DRIVER_DEVICE_NAME L"HgsManipulator"
+#define HGS_DRIVER_NAME L"\\Device\\HgsAnalyzer"
+#define HGS_DRIVER_SYMBOLIC_NAME L"\\DosDevices\\HgsAnalyzer"
+#define HGS_DRIVER_DEVICE_NAME L"HgsAnalyzer"
 
 // IOCTL codes
 #define HGS_IOCTL_BASE 0x8000
@@ -253,7 +253,6 @@ NTSTATUS HgsKernelKeyProtectorModelCleanup(PHGS_KERNEL_DRIVER driver);
 NTSTATUS HgsKernelVmPolicySamplerInit(PHGS_KERNEL_DRIVER driver);
 NTSTATUS HgsKernelSampleVmPolicy(PHGS_KERNEL_DRIVER driver, const WCHAR* vm_name, const WCHAR* policy_data);
 NTSTATUS HgsKernelModifyVmSecuritySettings(PHGS_KERNEL_DRIVER driver, const WCHAR* vm_name);
-NTSTATUS HgsKernelDisableVmShielding(PHGS_KERNEL_DRIVER driver, const WCHAR* vm_name);
 NTSTATUS HgsKernelVmPolicySamplerCleanup(PHGS_KERNEL_DRIVER driver);
 
 // Kernel Utility Functions

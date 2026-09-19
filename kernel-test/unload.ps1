@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-  Stop and delete the HgsManipulator kernel service. Runs inside the guest.
+  Stop and delete the HgsAnalyzer kernel service. Runs inside the guest.
 #>
 [CmdletBinding()]
-param([string]$Service = 'HgsManipulator', [switch]$Arm)
+param([string]$Service = 'HgsAnalyzer', [switch]$Arm)
 $steps = @("sc.exe stop $Service", "sc.exe delete $Service")
 if (-not $Arm) {
     Write-Host "[unload] DRY-RUN (no -Arm). Would run, inside the guest:" -ForegroundColor Yellow
